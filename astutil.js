@@ -15,6 +15,8 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
+const beautifier = require('js-beautify');
+
 define(function (require, exports) {
     var esprima = require('./esprima');
     var fs = require('fs');
@@ -100,7 +102,7 @@ define(function (require, exports) {
     function buildAST(files) {
         var sources = files.map(function (file) {
             return { filename: file,
-                program: fs.readFileSync(file, 'utf-8') };
+                program: beautifier.js(fs.readFileSync(file, 'utf-8')) };
         });
 
         var ast = {
