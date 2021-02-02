@@ -95,7 +95,9 @@ define(function (require, exports) {
 
     /* Pretty-print position. */
     function ppPos(nd) {
-        return basename(nd.attr.enclosingFile) + "@" + nd.loc.start.line + ":" + nd.range[0] + "-" + nd.range[1];
+        var fn = nd.attr.enclosingFunction;
+        var fnLoc = fn ? `@fn-${fn.loc.start.line}-${fn.loc.start.column}-${fn.loc.end.line}-${fn.loc.end.column}` : "";
+        return basename(nd.attr.enclosingFile) + "@" + nd.loc.start.line + ":" + nd.range[0] + "-" + nd.range[1] + fnLoc;
     }
 
     /* Build an AST from a collection of source files. */
@@ -111,9 +113,13 @@ define(function (require, exports) {
             attr: {}
         };
         sources.forEach(function (source) {
-            var prog = esprima.parse(source.program, { loc: true, range: true });
-            prog.attr = { filename: source.filename, sloc : sloc(source.program, "javascript").sloc};
-            ast.programs.push(prog);
+            try { 
+                var prog = esprima.parse(source.program, { loc: true, range: true });
+                prog.attr = { filename: source.filename, sloc : sloc(source.program, "javascript").sloc};
+                ast.programs.push(prog);
+            } catch (e){
+                console.error(`Error while parsing ${source.filename}`);
+            }
         });
         init(ast);
         ast.attr.sloc = ast.programs
