@@ -15,7 +15,8 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
-const beautifier = require('js-beautify');
+const beautifier = require('js-beautify'),
+    globalWrapper = require('../../rewriters/global-code-wrapper')
 
 define(function (require, exports) {
     var esprima = require('./esprima');
@@ -103,8 +104,10 @@ define(function (require, exports) {
     /* Build an AST from a collection of source files. */
     function buildAST(files) {
         var sources = files.map(function (file) {
+            var src = fs.readFileSync(file, 'utf-8');
+            src = globalWrapper.wrap(src);
             return { filename: file,
-                program: beautifier.js(fs.readFileSync(file, 'utf-8')) };
+                program: beautifier.js(src) };
         });
 
         var ast = {

@@ -115,6 +115,6 @@ if (args.cg) {
     }
 
     cg.edges.iter(function (call, fn) {
-        console.log(pp(call) + " -> " + pp(fn));
+        console.error(pp(call) + " -> " + pp(fn));
     });
 }
