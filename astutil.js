@@ -15,9 +15,6 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
-const beautifier = require('js-beautify'),
-    globalWrapper = require('../../rewriters/global-code-wrapper')
-
 define(function (require, exports) {
     var esprima = require('./esprima');
     var fs = require('fs');
@@ -91,7 +88,11 @@ define(function (require, exports) {
         var idx = filename.lastIndexOf('/');
         if (idx === -1)
             idx = filename.lastIndexOf('\\');
-        return filename.substring(idx + 1);
+        var fn =  filename.substring(idx + 1);
+        if (fn!='content') return fn;
+
+        var fnPaths = filename.split('/');
+        return fnPaths[fnPaths.length - 2]; //return the directory containing content;
     }
 
     /* Pretty-print position. */
@@ -105,9 +106,8 @@ define(function (require, exports) {
     function buildAST(files) {
         var sources = files.map(function (file) {
             var src = fs.readFileSync(file, 'utf-8');
-            src = globalWrapper.wrap(src);
             return { filename: file,
-                program: beautifier.js(src) };
+                program: src };
         });
 
         var ast = {
